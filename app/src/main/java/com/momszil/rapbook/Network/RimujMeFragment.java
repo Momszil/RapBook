@@ -6,16 +6,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.momszil.rapbook.R;
 
+import org.jsoup.Jsoup;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -47,8 +53,7 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
         ButterKnife.inject(this, rootView);
 
-        // TODO ovo je bila greska
-        //mUpit = getArguments().getString("WORD");
+        mUpit = getArguments().getString("WORD");
 
         return rootView;
     }
@@ -66,8 +71,11 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<List<String>> listLoader, List<String> strings) {
-        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.fragment_rimuj_me, R.id.spinner, strings);
-        //spinner.setAdapter(adapter);
+        spinner.setVisibility(View.VISIBLE);
+        Log.v("RIJECI", " " + strings.toString());
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, strings);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
     }
 
     @Override
@@ -77,7 +85,9 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
     private static class RimujMe extends AsyncTaskLoader<List<String>> {
 
+        Scanner s = null;
         private String mUpit;
+        String html = "";
         List<String> lista;
 
         public RimujMe(Context context, String upit) {
@@ -87,11 +97,34 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
         @Override
         public List<String> loadInBackground() {
-            RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint("http://rimuj.me").build();
+            RestAdapter restAdapter = new RestAdapter.Builder().
+                    setLogLevel(RestAdapter.LogLevel.BASIC).
+                    setEndpoint("http://rimuj.me").
+                    build();
             RimujMeService service = restAdapter.create(RimujMeService.class);
-            String html = "x"; //service.testiramo(mUpit);
+
+            try {
+                s = new Scanner(service.testiramo(mUpit).getBody().in()).useDelimiter("\\A");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            html = s.hasNext() ? s.next() : "";
+
             lista = new ArrayList<String>();
-            lista.add(html);
+            int start = html.indexOf("<table id=\"searchResults\">");
+            html = html.substring(start, html.indexOf("</table>", start) + 8);
+
+            html = Jsoup.parseBodyFragment(html).getElementById("searchResults").getElementsByTag("td").text() + " zadnjica";
+
+            //Document doc = Jsoup.parseBodyFragment(html);
+            //Elements table = doc.getElementById("searchResults").getElementsByTag("td");
+            //html = table.text() + " zadnjica";
+
+            for (String rimovana : html.split(" × ")) {
+                lista.add(rimovana);
+            }
+
+            lista.remove(lista.size()-1);
             return lista;
         }
 

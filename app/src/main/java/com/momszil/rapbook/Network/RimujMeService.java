@@ -1,6 +1,8 @@
 package com.momszil.rapbook.Network;
 
+import retrofit.client.Response;
 import retrofit.http.GET;
+import retrofit.http.Headers;
 import retrofit.http.Path;
 
 /**
@@ -8,7 +10,8 @@ import retrofit.http.Path;
  */
 public interface RimujMeService {
 
+    @Headers({"Accept: application/json"})
     @GET("/upit/{upit}")
-    String testiramo(@Path("upit") String upit);
+    Response testiramo(@Path("upit") String upit);
 
 }

@@ -26,9 +26,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.momszil.rapbook.RhymeActivity"
-            android:theme="@android:style/Theme.Dialog"></activity>
-        <activity
             android:name=".NewSongActivity">
         </activity>
     </application>

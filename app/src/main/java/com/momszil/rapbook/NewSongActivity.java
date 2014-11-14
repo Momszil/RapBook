@@ -1,13 +1,12 @@
 package com.momszil.rapbook;
 
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v4.app.FragmentActivity;
-import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -29,6 +28,7 @@ public class NewSongActivity extends FragmentActivity {
     SpeechRecognizer sr;
     Bundle args = new Bundle();
     RimujMeFragment rimuj;
+    InputMethodManager imm;
 
     @InjectView(R.id.editTextRijec)
     EditText etRijec;
@@ -40,9 +40,15 @@ public class NewSongActivity extends FragmentActivity {
     @OnClick(R.id.buttonRimuj)
     public void rimujMe() {
         if (etRijec.getText().toString().length() > 0) {
-            findViewById(R.id.spinner).setVisibility(View.VISIBLE);
+
+            imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(etRijec.getWindowToken(), 0);
+
             args.putString("WORD", etRijec.getText().toString());
+            rimuj = new RimujMeFragment();
             rimuj.setArguments(args);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragmentRimuj, rimuj).commit();
+
         }
 
         //Toast.makeText(this, results.get(0), Toast.LENGTH_SHORT).show();
@@ -66,12 +72,6 @@ public class NewSongActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_song);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        rimuj = new RimujMeFragment();
-        fragmentTransaction.add(R.id.fragmentRimuj, rimuj);
-        fragmentTransaction.commit();
 
         ButterKnife.inject(this);
 
@@ -97,6 +97,17 @@ public class NewSongActivity extends FragmentActivity {
                     break;
 
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (sr!=null) {
+            sr.stopListening();
+            sr.cancel();
+            sr.destroy();
         }
     }
 
