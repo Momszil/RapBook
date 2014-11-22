@@ -3,31 +3,29 @@ package com.momszil.rapbook;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.momszil.rapbook.Listener.SpeechRecognitionListener;
-import com.momszil.rapbook.Network.RimujMeFragment;
-
-import java.util.List;
+import com.momszil.rapbook.fragment.LajneFragment;
+import com.momszil.rapbook.fragment.RimujMeFragment;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class NewSongActivity extends FragmentActivity {
+public class NewSongActivity extends FragmentActivity implements RecognitionListener {
 
-    private static final int SPEECH_REQUEST_CODE = 0;
-    protected static final int RIMOVANJE = 1;
 
-    private List<String> results;
     SpeechRecognizer sr;
     Bundle args = new Bundle();
     RimujMeFragment rimuj;
+    LajneFragment lajne;
     InputMethodManager imm;
 
     @InjectView(R.id.editTextRijec)
@@ -50,8 +48,6 @@ public class NewSongActivity extends FragmentActivity {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragmentRimuj, rimuj).commit();
 
         }
-
-        //Toast.makeText(this, results.get(0), Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.buttonGlas)
@@ -60,7 +56,7 @@ public class NewSongActivity extends FragmentActivity {
 
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, "com.momszil.rapbook.Listener");
+        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
 
         // Start the activity, the intent will be populated with the speech text
         //startActivityForResult(intent, SPEECH_REQUEST_CODE);
@@ -70,45 +66,83 @@ public class NewSongActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("CREATE", "on create called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_song);
 
         ButterKnife.inject(this);
 
-        sr = SpeechRecognizer.createSpeechRecognizer(this);
-        SpeechRecognitionListener srListener = new SpeechRecognitionListener();
-        sr.setRecognitionListener(srListener);
-        //sr.startListening(RecognizerIntent.getVoiceDetailsIntent(this));
-
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                // This callback is invoked when the Speech Recognizer returns.
-                case SPEECH_REQUEST_CODE:
-                    results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    String spokenText = results.get(0);
-                    btnGlas.setText(spokenText);
-                    break;
-                case RIMOVANJE:
-                    break;
+    protected void onResume() {
+        Log.i("RESUME", "on resume called");
+        sr = SpeechRecognizer.createSpeechRecognizer(this);
+        sr.setRecognitionListener(this);
+        //sr.startListening(RecognizerIntent.getVoiceDetailsIntent(this));
 
-            }
-        }
+        super.onResume();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
-
+        Log.i("PAUSE", "on pause called");
         if (sr!=null) {
             sr.stopListening();
             sr.cancel();
             sr.destroy();
         }
+        sr = null;
+        super.onPause();
     }
 
+    @Override
+    public void onReadyForSpeech(Bundle params) {
+        //Log.d("Speech", "onReadyForSpeech");
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+        //Log.d("Speech", "onBeginningOfSpeech");
+    }
+
+    @Override
+    public void onRmsChanged(float rmsdB) {
+        //Log.d("Speech", "onRmsChanged");
+    }
+
+    @Override
+    public void onBufferReceived(byte[] buffer) {
+        //Log.d("Speech", "onBufferReceived");
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+        //Log.d("Speech", "onEndOfSpeech");
+    }
+
+    @Override
+    public void onError(int error) {
+        //Log.d("Speech", "onError");
+    }
+
+    @Override
+    public void onResults(Bundle results) {
+        Log.d("SpeechVraceno", "onResults");
+
+        lajne = new LajneFragment();
+        args.putStringArrayList("RESULTS", results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION));
+        lajne.setArguments(args);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentLajne, lajne).commit();
+    }
+
+    @Override
+    public void onPartialResults(Bundle partialResults) {
+        //Log.d("Speech", "onPartialResults");
+    }
+
+    @Override
+    public void onEvent(int eventType, Bundle params) {
+        //Log.d("Speech", "onEvent");
+    }
 }

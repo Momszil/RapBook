@@ -1,4 +1,4 @@
-package com.momszil.rapbook.Network;
+package com.momszil.rapbook.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,10 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.momszil.rapbook.R;
+import com.momszil.rapbook.network.RimujMeService;
 
 import org.jsoup.Jsoup;
 
@@ -35,8 +36,6 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int THE_LOADER = 0x01;
     private String mUpit;
 
-    @InjectView(R.id.linearLayoutRimujMe)
-    LinearLayout llRimuj;
     @InjectView(R.id.spinner)
     Spinner spinner;
 
@@ -66,16 +65,20 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<List<String>> onCreateLoader(int i, Bundle bundle) {
-        return new RimujMe(getActivity(), mUpit);
+        return new Rimuj(getActivity(), mUpit);
     }
 
     @Override
     public void onLoadFinished(Loader<List<String>> listLoader, List<String> strings) {
-        spinner.setVisibility(View.VISIBLE);
-        Log.v("RIJECI", " " + strings.toString());
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, strings);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
+        Log.v("RIJECI", " " + strings.toString() + " KOLICINA: " + strings.size());
+        if (strings.size() > 0) {
+            spinner.setVisibility(View.VISIBLE);
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, strings);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(spinnerAdapter);
+        } else {
+            Toast.makeText(getActivity(), "NEMA PRONALASKA", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -83,14 +86,14 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
         spinner.setAdapter(null);
     }
 
-    private static class RimujMe extends AsyncTaskLoader<List<String>> {
+    private static class Rimuj extends AsyncTaskLoader<List<String>> {
 
         Scanner s = null;
         private String mUpit;
         String html = "";
         List<String> lista;
 
-        public RimujMe(Context context, String upit) {
+        public Rimuj(Context context, String upit) {
             super(context);
             mUpit = upit;
         }
@@ -112,19 +115,19 @@ public class RimujMeFragment extends Fragment implements LoaderManager.LoaderCal
 
             lista = new ArrayList<String>();
             int start = html.indexOf("<table id=\"searchResults\">");
-            html = html.substring(start, html.indexOf("</table>", start) + 8);
+            if (start > 0) {
+                html = html.substring(start, html.indexOf("</table>", start) + 8);
+                html = Jsoup.parseBodyFragment(html).getElementById("searchResults").getElementsByTag("td").text() + " zadnjica";
+                //Document doc = Jsoup.parseBodyFragment(html);
+                //Elements table = doc.getElementById("searchResults").getElementsByTag("td");
+                //html = table.text() + " zadnjica";
 
-            html = Jsoup.parseBodyFragment(html).getElementById("searchResults").getElementsByTag("td").text() + " zadnjica";
-
-            //Document doc = Jsoup.parseBodyFragment(html);
-            //Elements table = doc.getElementById("searchResults").getElementsByTag("td");
-            //html = table.text() + " zadnjica";
-
-            for (String rimovana : html.split(" × ")) {
-                lista.add(rimovana);
+                for (String rimovana : html.split(" × ")) {
+                    lista.add(rimovana);
+                }
+                lista.remove(lista.size()-1);
             }
 
-            lista.remove(lista.size()-1);
             return lista;
         }
 

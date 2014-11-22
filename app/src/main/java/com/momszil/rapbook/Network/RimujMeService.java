@@ -1,4 +1,4 @@
-package com.momszil.rapbook.Network;
+package com.momszil.rapbook.network;
 
 import retrofit.client.Response;
 import retrofit.http.GET;
