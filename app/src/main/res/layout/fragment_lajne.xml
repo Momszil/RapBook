@@ -2,7 +2,6 @@
 <ListView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/list_lajne"
-    android:background="#000000">
+    android:id="@+id/list_lajne">
 
 </ListView>
