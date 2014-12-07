@@ -19,7 +19,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 
-public class NewSongActivity extends FragmentActivity implements RecognitionListener {
+public class NewSongActivity extends FragmentActivity implements RecognitionListener, LajneFragment.OnLinijaSelectedListener {
 
 
     SpeechRecognizer sr;
@@ -47,6 +47,7 @@ public class NewSongActivity extends FragmentActivity implements RecognitionList
             rimuj.setArguments(args);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragmentRimuj, rimuj).commit();
 
+            etRijec.setText("");
         }
     }
 
@@ -62,6 +63,15 @@ public class NewSongActivity extends FragmentActivity implements RecognitionList
         //startActivityForResult(intent, SPEECH_REQUEST_CODE);
         sr.startListening(intent);
 
+    }
+
+    @Override
+    public void onLinijaSelected(String linijaString) {
+        //Toast.makeText(getApplication(), "Clicked position " + linijaString.substring(linijaString.lastIndexOf(" ") + 1) + "!", Toast.LENGTH_SHORT).show();
+        args.putString("WORD", linijaString.substring(linijaString.lastIndexOf(" ") + 1));
+        rimuj = new RimujMeFragment();
+        rimuj.setArguments(args);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragmentRimuj, rimuj).commit();
     }
 
     @Override
@@ -145,4 +155,5 @@ public class NewSongActivity extends FragmentActivity implements RecognitionList
     public void onEvent(int eventType, Bundle params) {
         //Log.d("Speech", "onEvent");
     }
+
 }

@@ -1,14 +1,15 @@
 package com.momszil.rapbook.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.momszil.rapbook.R;
 
@@ -24,14 +25,31 @@ import butterknife.OnItemClick;
 public class LajneFragment extends Fragment {
 
     private ArrayList<String> mResults;
+    OnLinijaSelectedListener mListener;
 
     @InjectView(R.id.list_lajne)
     ListView listLajne;
 
     @OnItemClick(R.id.list_lajne)
-    public void rimujMe(int position) {
-        Toast.makeText(getActivity(), "Clicked position " + position + "!", Toast.LENGTH_SHORT).show();
-        //TODO http://developer.android.com/guide/components/fragments.html#EventCallbacks
+    public void rimujMe(AdapterView<?> aV, int position) {
+        //View wantedView = listLajne.getChildAt(position - listLajne.getFirstVisiblePosition() + listLajne.getHeaderViewsCount());
+        mListener.onLinijaSelected((String) aV.getItemAtPosition(position));
+    }
+
+    public interface OnLinijaSelectedListener {
+        public void onLinijaSelected(String linijaString);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mListener = (OnLinijaSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnLinijaSelectedListener");
+        }
     }
 
     @Override

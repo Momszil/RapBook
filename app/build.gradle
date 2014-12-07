@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 16
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         applicationId "com.momszil.rapbook"
         minSdkVersion 10
-        targetSdkVersion 17
+        targetSdkVersion 21
     }
 
     buildTypes {
@@ -19,7 +19,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v4:21.0.+'
+    compile 'com.android.support:appcompat-v7:21.0.+'
+    compile 'com.android.support:recyclerview-v7:21.0.+'
     compile 'com.jakewharton:butterknife:6.0.0'
     compile 'com.squareup.retrofit:retrofit:1.7.1'
     compile 'org.jsoup:jsoup:1.8.1'

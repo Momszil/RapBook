@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="match_parent" >
 
     <RelativeLayout
+        android:id="@+id/relayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/medium_distance_button" >
@@ -22,7 +21,6 @@
 
         <Button
             android:id="@+id/buttonRimuj"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/Rimuj"
@@ -36,21 +34,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/UnesiGlas"
-        android:id="@+id/buttonGlas"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="@dimen/medium_distance_button"/>
+        android:layout_marginRight="25dp"
+        android:layout_below="@+id/relayout"/>
 
     <FrameLayout
         android:id="@+id/fragmentLajne"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp" />
+        android:layout_marginRight="25dp"
+        android:layout_below="@id/fragmentRimuj"/>
 
-</LinearLayout>
+    <Button
+        android:text="@string/UnesiGlas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonGlas"
+        android:layout_margin="@dimen/medium_distance_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
